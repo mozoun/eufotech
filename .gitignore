@@ -3,17 +3,31 @@
 Thumbs.db
 desktop.ini
 *.log
-
-# Editor folders
 .vscode/
 .idea/
 
 # Vercel
 .vercel/
 
-# Dependencies (in case tooling is added later)
+# Dependencies
 node_modules/
 
-# Archives & large brand video assets (kept locally, not in the website repo)
+# Large brand media & archives (kept locally, not in the website repo)
 *.zip
 *.mp4
+*.jpg
+*.jpeg
+*.png
+
+# Design-tooling artifacts accidentally unpacked into this folder
+/.claude/
+/.claude-plugin/
+/.github/
+/cli/
+/docs/
+/preview/
+/screenshots/
+/src/
+/CLAUDE.md
+/LICENSE
+/skill.json
