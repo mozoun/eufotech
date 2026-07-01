@@ -1,53 +1,119 @@
 const yearEl = document.getElementById('year');
 if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-// 3D Grid Canvas Animation (Qminded-inspired)
-const canvas = document.getElementById('dotCanvas');
-if (canvas) {
-    const ctx = canvas.getContext('2d');
-    let width, height;
+// Scroll-linked wave background (Three.js) - camera drifts through a rolling
+// grid of gold particles as you scroll, like passing over/under a sea surface.
+const wavesContainer = document.getElementById('dotWaves');
+if (wavesContainer && window.THREE && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const SEPARATION = 100, AMOUNTX = 50, AMOUNTY = 50;
+    const halfPageY = document.body.clientHeight / 2;
+    let camera, scene, renderer, particles;
+    let count = 0;
+    let yDisPos = 0;
 
-    function resizeCanvas() {
-        width = window.innerWidth;
-        height = window.innerHeight;
-        canvas.width = width;
-        canvas.height = height;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+    const waveVertexShader = `
+        attribute float scale;
+        void main() {
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            gl_PointSize = scale * (300.0 / -mvPosition.z);
+            gl_Position = projectionMatrix * mvPosition;
+        }
+    `;
+    const waveFragmentShader = `
+        uniform vec3 color;
+        void main() {
+            if (length(gl_PointCoord - vec2(0.5)) > 0.5) discard;
+            gl_FragColor = vec4(color, 1.0);
+        }
+    `;
 
-    let time = 0;
-    function animateCanvas() {
-        ctx.clearRect(0, 0, width, height);
-        time += 0.015; // Speed of wave
+    function initWaves() {
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
+        camera.position.z = 1000;
+        camera.position.y = 1000;
 
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x09090f);
 
-        for (let x = -30; x < 30; x++) {
-            for (let z = 5; z < 50; z++) { // z depth
-                let x3d = x * 80;
-                let z3d = z * 80 - (time * 80) % 80;
-                let y3d = Math.sin(x3d * 0.01 + time) * Math.cos(z3d * 0.01 + time) * 120;
+        const numParticles = AMOUNTX * AMOUNTY;
+        const positions = new Float32Array(numParticles * 3);
+        const scales = new Float32Array(numParticles);
 
-                let scale = 900 / (900 + z3d);
-                let x2d = width / 2 + x3d * scale;
-                let y2d = height / 2 + y3d * scale + 150;
-
-                if (x2d > 0 && x2d < width && y2d > 0 && y2d < height) {
-                    let size = scale * 2.5;
-                    ctx.globalAlpha = Math.max(0, 1 - z3d / 3500);
-                    ctx.beginPath();
-                    ctx.arc(x2d, y2d, size, 0, Math.PI * 2);
-                    ctx.fill();
-                }
+        let i = 0, j = 0;
+        for (let ix = 0; ix < AMOUNTX; ix++) {
+            for (let iy = 0; iy < AMOUNTY; iy++) {
+                positions[i] = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2;
+                positions[i + 1] = 0;
+                positions[i + 2] = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2;
+                scales[j] = 0.1;
+                i += 3;
+                j++;
             }
         }
-        requestAnimationFrame(animateCanvas);
+
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('scale', new THREE.BufferAttribute(scales, 1));
+
+        const material = new THREE.ShaderMaterial({
+            uniforms: { color: { value: new THREE.Color(0xd4af37) } }, // gold
+            vertexShader: waveVertexShader,
+            fragmentShader: waveFragmentShader
+        });
+
+        particles = new THREE.Points(geometry, material);
+        scene.add(particles);
+
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        wavesContainer.appendChild(renderer.domElement);
+        wavesContainer.style.touchAction = 'none';
+
+        window.addEventListener('resize', onWavesResize);
     }
-    // Start animation only if not reduced motion
-    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        animateCanvas();
+
+    function onWavesResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
     }
+
+    function onWavesScroll() {
+        yDisPos = (window.scrollY - halfPageY) / 2;
+    }
+
+    function animateWaves() {
+        requestAnimationFrame(animateWaves);
+        onWavesScroll();
+        renderWaves();
+    }
+
+    function renderWaves() {
+        camera.position.x += (yDisPos - camera.position.x) * 0.02;
+        camera.position.y += (-yDisPos - camera.position.y) * 0.02;
+        camera.lookAt(scene.position);
+
+        const positions = particles.geometry.attributes.position.array;
+        const scales = particles.geometry.attributes.scale.array;
+        let i = 0, j = 0;
+        for (let ix = 0; ix < AMOUNTX; ix++) {
+            for (let iy = 0; iy < AMOUNTY; iy++) {
+                positions[i + 1] = Math.sin((ix + count) * 0.3) * 30 + Math.sin((iy + count) * 0.5) * 30;
+                scales[j] = (Math.sin((ix + count) * 0.3) + 1) * 10 + (Math.sin((iy + count) * 0.5) + 1) * 10;
+                i += 3;
+                j++;
+            }
+        }
+        particles.geometry.attributes.position.needsUpdate = true;
+        particles.geometry.attributes.scale.needsUpdate = true;
+
+        renderer.render(scene, camera);
+        count += 0.1;
+    }
+
+    initWaves();
+    animateWaves();
 }
 
 // Snaking SVG Line and Scroll Animations (only runs on pages that have node-dots + #snakeSvg)

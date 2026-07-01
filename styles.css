@@ -4,8 +4,8 @@
     --bg-card: #1B1B21; /* card background */
     --text-main: #FFFFFF;
     --text-muted: #94979E;
-    --accent: #C0D45C; /* verified against qminded.ca production CSS */
-    --accent-alpha: #C0D45CA1;
+    --accent: #D4AF37; /* gold */
+    --accent-alpha: #D4AF37A1;
     --font-main: 'Inter', sans-serif;
 }
 
@@ -19,16 +19,20 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* Canvas Background */
-#dotCanvas {
+/* Scroll-linked wave background (Three.js) */
+#dotWaves {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100vh;
     z-index: 0;
-    opacity: 0.4;
     pointer-events: none;
+    overflow: hidden;
+}
+
+#dotWaves canvas {
+    display: block;
 }
 
 /* SVG Snaking Line */
@@ -140,7 +144,7 @@ nav a.active {
 }
 
 .btn-schedule:hover {
-    background-color: #d6ec7a;
+    background-color: #e8c34b;
     transform: translateY(-2px);
 }
 
@@ -442,7 +446,7 @@ footer {
     position: absolute;
     z-index: 3;
     transform: translate(-50%, -50%);
-    box-shadow: 0 0 12px rgba(192, 212, 92, 0.5);
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.5);
     opacity: 0;
     transition: opacity 0.4s ease;
 }
