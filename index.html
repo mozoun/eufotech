@@ -132,7 +132,7 @@
         </div>
     </div>
 
-    <button id="chatbotToggle" class="chatbot-toggle" style="display: none;">
+    <button id="chatbotToggle" class="chatbot-toggle" style="display: none;" aria-label="Open chat">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
         </svg>
@@ -143,8 +143,8 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 380px;
-            height: 550px;
+            width: 320px;
+            height: 470px;
             background: #1B1B21;
             border: 1px solid rgba(212, 175, 55, 0.3);
             border-radius: 12px;
@@ -322,8 +322,8 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background: #D4AF37;
             border: none;
@@ -339,6 +339,11 @@
 
         .chatbot-toggle:hover {
             transform: scale(1.1);
+        }
+
+        .chatbot-toggle svg {
+            width: 20px;
+            height: 20px;
         }
 
         @media (max-width: 480px) {
@@ -369,18 +374,33 @@
                 bestTime: ''
             };
 
-            // Check if user already submitted
-            const hasSubmitted = sessionStorage.getItem('eufotech_chatbot_submitted');
+            // Play notification sound
+            function playNotificationSound() {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
 
-            if (hasSubmitted) {
-                chatbot.classList.add('hidden');
-                chatbotToggle.style.display = 'flex';
-            } else {
-                // Show chatbot immediately on page load
-                setTimeout(() => {
-                    addBotMessage("Welcome to Eufo Tech! How can we help you today?");
-                }, 500);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
             }
+
+            // Start minimized - show button only
+            chatbot.classList.add('hidden');
+
+            // Show button with sound after short delay
+            setTimeout(() => {
+                chatbotToggle.style.display = 'flex';
+                playNotificationSound();
+            }, 1000);
 
             function addBotMessage(message) {
                 const messageDiv = document.createElement('div');
@@ -516,6 +536,13 @@ Sent from Eufo Tech Website Chatbot
             chatbotToggle.addEventListener('click', () => {
                 chatbot.classList.remove('hidden');
                 chatbotToggle.style.display = 'none';
+
+                // Add welcome message if chat is empty
+                if (chatMessages.children.length === 0) {
+                    setTimeout(() => {
+                        addBotMessage("Welcome to Eufo Tech! How can we help you today?");
+                    }, 300);
+                }
             });
         })();
     </script>
