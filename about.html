@@ -116,7 +116,7 @@
             height: 470px;
             background: #1B1B21;
             border: 1px solid rgba(212, 175, 55, 0.3);
-            border-radius: 12px;
+            border-radius: 24px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
             display: flex;
             flex-direction: column;
@@ -132,7 +132,7 @@
             background: #0F0F15;
             padding: 16px 20px;
             border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-            border-radius: 12px 12px 0 0;
+            border-radius: 24px 24px 0 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -338,6 +338,7 @@
             let conversationStep = 0;
             let userData = {
                 needs: '',
+                job: '',
                 service: '',
                 email: '',
                 bestTime: ''
@@ -352,14 +353,14 @@
                 oscillator.connect(gainNode);
                 gainNode.connect(audioContext.destination);
 
-                oscillator.frequency.value = 800;
+                oscillator.frequency.value = 1000;
                 oscillator.type = 'sine';
 
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
 
                 oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.3);
+                oscillator.stop(audioContext.currentTime + 0.5);
             }
 
             // Start minimized - show button only
@@ -400,27 +401,44 @@
                             // Store what they need
                             userData.needs = input;
                             conversationStep++;
-                            addBotMessage("Great! We offer three main services: Web Development, AI Chatbots, and Network Solutions. Which service are you interested in, or feel free to describe what you're looking for?");
+                            addBotMessage("What is your job/position?");
                             break;
 
                         case 1:
+                            // Store job/position
+                            userData.job = input;
+                            conversationStep++;
+                            addBotMessage("Great! We offer three main services: Web Development, AI Chatbots, and Network Solutions. Which service are you interested in, or feel free to describe what you're looking for?");
+                            break;
+
+                        case 2:
                             // Store service interest
                             userData.service = input;
                             conversationStep++;
                             addBotMessage("Perfect! What's your email address so we can get back to you?");
                             break;
 
-                        case 2:
-                            // Store email
+                        case 3:
+                            // Store email and check for duplicates
+                            const submittedEmails = JSON.parse(sessionStorage.getItem('eufotech_chatbot_emails') || '[]');
+                            if (submittedEmails.includes(input.toLowerCase())) {
+                                addBotMessage("This email has already been submitted in this session. Please use a different email address.");
+                                return;
+                            }
                             userData.email = input;
                             conversationStep++;
                             addBotMessage("Thank you! What's the best time to contact you?");
                             break;
 
-                        case 3:
+                        case 4:
                             // Store best time
                             userData.bestTime = input;
                             conversationStep++;
+
+                            // Save email to session storage
+                            const emails = JSON.parse(sessionStorage.getItem('eufotech_chatbot_emails') || '[]');
+                            emails.push(userData.email.toLowerCase());
+                            sessionStorage.setItem('eufotech_chatbot_emails', JSON.stringify(emails));
 
                             // Send email
                             sendEmail();
@@ -446,6 +464,8 @@ New Contact from Eufo Tech Website Chatbot
 
 What they need: ${userData.needs}
 
+Job/Position: ${userData.job}
+
 Service interested in: ${userData.service}
 
 Email: ${userData.email}
@@ -466,6 +486,7 @@ Sent from Eufo Tech Website Chatbot
                     '_subject': 'New Contact from Eufo Tech Chatbot',
                     '_template': 'box',
                     'What_they_need': userData.needs,
+                    'Job_Position': userData.job,
                     'Service_interested': userData.service,
                     'Email': userData.email,
                     'Best_time': userData.bestTime
