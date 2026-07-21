@@ -39,12 +39,75 @@
             0%, 60%, 100% { opacity: 0.25; transform: translateY(0); }
             30% { opacity: 1; transform: translateY(-3px); }
         }
+        .chat-preview-bubble {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            background: #16161f;
+            color: #fff;
+            border: 1px solid #d4af37;
+            border-radius: 14px 14px 2px 14px;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-family: inherit;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            cursor: pointer;
+            z-index: 998;
+            max-width: 230px;
+            animation: chatBubblePop 0.4s ease;
+        }
+        .chat-preview-bubble .chat-bubble-close {
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #d4af37;
+            color: #09090f;
+            border: none;
+            font-size: 12px;
+            line-height: 1;
+            cursor: pointer;
+        }
+        @keyframes chatBubblePop {
+            0% { opacity: 0; transform: translateY(10px) scale(0.9); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .chat-toggle-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #e74c3c;
+            color: #fff;
+            font-size: 11px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     `;
     document.head.appendChild(style);
 
     // ---- State ----
-    let step = 'menu'; // menu | needs | job | email | day | time | done
-    const userData = { needs: '', job: '', service: '', email: '', day: '', time: '' };
+    let step = 'menu'; // name | menu | needs | job | email | day | time | done
+    const userData = { name: '', needs: '', job: '', service: '', email: '', day: '', time: '' };
+
+    // ---- Page-aware greetings ----
+    function pageGreeting() {
+        const p = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+        if (p.includes('services')) return "Hello! 👋 I see you're checking out our services — great choice! I can tell you more about any of them or get you a free quote.";
+        if (p.includes('about')) return "Hello! 👋 Getting to know us? We'd love to get to know you too!";
+        if (p.includes('contact')) return "Hello! 👋 Looking to get in touch? I can set that up for you right here in seconds.";
+        return "Hello! 👋 Welcome to Eufo Tech — we're happy to have you here.";
+    }
+
+    function greet(name) {
+        return name ? `, ${name}` : '';
+    }
 
     // ---- Helpers ----
     function playNotificationSound() {
@@ -196,7 +259,7 @@
         sessionStorage.setItem('eufotech_chatbot_emails', JSON.stringify(emails));
         sessionStorage.setItem('eufotech_chatbot_submitted', 'true');
         sendEmail();
-        addBotMessage(`✅ Perfect! We'll contact you on ${userData.day} between ${userData.time}. Thank you for reaching out to Eufo Tech!`);
+        addBotMessage(`✅ Perfect${greet(userData.name)}! We'll contact you on ${userData.day} between ${userData.time}. Thank you for reaching out to Eufo Tech!`);
         setTimeout(() => addBotMessage('Is there anything else I can help you with while you\'re here?', faqOptions()), 1800);
     }
 
@@ -209,6 +272,7 @@
             '_subject': 'New Contact from Eufo Tech Chatbot',
             '_template': 'box',
             '_captcha': 'false',
+            'Name': userData.name || '-',
             'What_they_need': userData.needs,
             'Job_Position': userData.job,
             'Service_interested': userData.service,
@@ -284,6 +348,14 @@
             if (smallTalk(input)) return;
 
             switch (step) {
+                case 'name': {
+                    const name = input.replace(/[^\p{L} '-]/gu, '').trim().split(/\s+/).slice(0, 2)
+                        .map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                    userData.name = name || '';
+                    step = 'menu';
+                    addBotMessage(name ? `Nice to meet you, ${name}! 😊 What would you like help with today?` : 'What would you like help with today?', mainMenuOptions());
+                    break;
+                }
                 case 'menu':
                     routeFreeText(input);
                     break;
@@ -328,10 +400,69 @@
 
     // ---- Wiring ----
     chatbot.classList.add('hidden');
+    chatbotToggle.style.position = 'fixed';
+
+    let previewBubble = null;
+    let autoOpenTimer = null;
+
+    function removePreviewBubble() {
+        if (previewBubble) { previewBubble.remove(); previewBubble = null; }
+        const badge = chatbotToggle.querySelector('.chat-toggle-badge');
+        if (badge) badge.remove();
+    }
+
+    function showPreviewBubble() {
+        if (previewBubble || !chatbot.classList.contains('hidden')) return;
+        previewBubble = document.createElement('div');
+        previewBubble.className = 'chat-preview-bubble';
+        previewBubble.textContent = '👋 Need help? Chat with us!';
+        const close = document.createElement('button');
+        close.className = 'chat-bubble-close';
+        close.textContent = '×';
+        close.addEventListener('click', (e) => { e.stopPropagation(); removePreviewBubble(); });
+        previewBubble.appendChild(close);
+        previewBubble.addEventListener('click', openChat);
+        document.body.appendChild(previewBubble);
+
+        if (!chatbotToggle.querySelector('.chat-toggle-badge')) {
+            const badge = document.createElement('span');
+            badge.className = 'chat-toggle-badge';
+            badge.textContent = '1';
+            chatbotToggle.appendChild(badge);
+        }
+    }
+
+    function openChat() {
+        removePreviewBubble();
+        if (autoOpenTimer) { clearTimeout(autoOpenTimer); autoOpenTimer = null; }
+        sessionStorage.setItem('eufotech_chat_opened', 'true');
+        chatbot.classList.remove('hidden');
+        chatbotToggle.style.display = 'none';
+        if (chatMessages.children.length === 0) {
+            step = 'name';
+            setTimeout(() => {
+                addBotMessage(pageGreeting() + " Before we start — what's your first name?", [
+                    { label: '➡️ Skip', action: () => showMenu('No problem! What would you like help with today?') }
+                ], 500);
+            }, 300);
+        }
+    }
+
     setTimeout(() => {
         chatbotToggle.style.display = 'flex';
         playNotificationSound();
     }, 1000);
+
+    // Preview bubble after 5s
+    setTimeout(showPreviewBubble, 5000);
+
+    // Proactive auto-open after 15s (once per browsing session)
+    if (!sessionStorage.getItem('eufotech_chat_opened') && !sessionStorage.getItem('eufotech_chatbot_submitted')) {
+        autoOpenTimer = setTimeout(() => {
+            playNotificationSound();
+            openChat();
+        }, 15000);
+    }
 
     chatSend.addEventListener('click', () => handleUserInput(chatInput.value));
     chatInput.addEventListener('keypress', (e) => {
@@ -343,13 +474,5 @@
         chatbotToggle.style.display = 'flex';
     });
 
-    chatbotToggle.addEventListener('click', () => {
-        chatbot.classList.remove('hidden');
-        chatbotToggle.style.display = 'none';
-        if (chatMessages.children.length === 0) {
-            setTimeout(() => {
-                addBotMessage("Hello! 👋 Welcome to Eufo Tech — we're happy to have you here. How can I help you today?", mainMenuOptions(), 500);
-            }, 300);
-        }
-    });
+    chatbotToggle.addEventListener('click', openChat);
 })();
