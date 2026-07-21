@@ -259,8 +259,36 @@
         sessionStorage.setItem('eufotech_chatbot_emails', JSON.stringify(emails));
         sessionStorage.setItem('eufotech_chatbot_submitted', 'true');
         sendEmail();
+        sendToHubSpot();
         addBotMessage(`✅ Perfect${greet(userData.name)}! We'll contact you on ${userData.day} between ${userData.time}. Thank you for reaching out to Eufo Tech!`);
         setTimeout(() => addBotMessage('Is there anything else I can help you with while you\'re here?', faqOptions()), 1800);
+    }
+
+    // Send lead to HubSpot CRM (creates a contact automatically)
+    function sendToHubSpot() {
+        const portalId = '343462592';
+        const formGuid = 'a0ea3c9a-74f6-488c-956b-e8e9eaada5ed';
+        const payload = JSON.stringify({
+            fields: [
+                { objectTypeId: '0-1', name: 'firstname', value: userData.name || '' },
+                { objectTypeId: '0-1', name: 'email', value: userData.email },
+                { objectTypeId: '0-1', name: 'message', value:
+                    'Service: ' + userData.service +
+                    ' | Needs: ' + userData.needs +
+                    ' | Job: ' + userData.job +
+                    ' | Preferred contact: ' + userData.day + ' ' + userData.time }
+            ],
+            context: { pageUri: window.location.href, pageName: document.title }
+        });
+        const opts = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload };
+        const path = '.hsforms.com/submissions/v3/integration/submit/' + portalId + '/' + formGuid;
+        fetch('https://api-na3' + path, opts)
+            .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); console.log('Lead saved to HubSpot'); })
+            .catch(() => {
+                fetch('https://api' + path, opts)
+                    .then(r => console.log('Lead saved to HubSpot (fallback):', r.ok))
+                    .catch(err => console.log('HubSpot submit failed:', err));
+            });
     }
 
     function sendEmail() {
