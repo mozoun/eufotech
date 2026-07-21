@@ -1,0 +1,80 @@
+EUFO TECH WEBSITE - RECENT CHANGES
+===================================
+Date: July 20, 2026
+Changed by: Claude Code Assistant
+
+SUMMARY:
+--------
+Updated chatbot across all 4 pages with new design, behavior, and notification sound.
+
+FILES MODIFIED:
+---------------
+1. index.html - Updated chatbot design and behavior
+2. services.html - Added custom chatbot (replaced Chatbase)
+3. about.html - Added custom chatbot (replaced Chatbase)
+4. contact.html - Added custom chatbot (replaced Chatbase)
+
+CHATBOT UPDATES:
+-----------------
+Previous Behavior:
+- Only on index.html
+- Auto-opened on page load
+- Larger size (380px wide × 550px tall)
+- Circle button (60px diameter)
+- No sound notification
+
+New Behavior:
+- Available on ALL 4 pages (index, services, about, contact)
+- Starts MINIMIZED as a circle button
+- Smaller sizes:
+  * Circle button: 50px diameter
+  * Chat window: 320px wide × 470px tall
+- Notification "ding" sound plays when button appears
+- Opens only when user clicks the button
+- Shows welcome message when first opened
+
+CHATBOT FEATURES (Unchanged):
+------------------------------
+- Collects: visitor needs, service interest, email, best contact time
+- Sends submissions to: admin@eufotech.ca (via FormSubmit.co)
+- Styled to match website theme (gold #D4AF37 accents, dark background)
+- All text input based (no buttons, visitors type everything)
+- Conversation flow:
+  1. "Welcome to Eufo Tech! How can we help you today?"
+  2. Mentions 3 services + asks which they're interested in
+  3. Asks for email address
+  4. Asks for best time to contact
+  5. Thank you message (chat stays open)
+- Close/reopen functionality with toggle button
+- Session memory (won't popup again after submission until browser closes)
+- Mobile responsive
+
+DEPLOYMENT:
+-----------
+- Committed to Git: ✓
+- Pushed to GitHub (github.com/mozoun/eufotech): ✓
+- Auto-deployed to eufotech.ca via Vercel: ✓
+
+WORKING DIRECTORY:
+------------------
+G:\eufo tech web site
+
+IMPORTANT NOTES:
+----------------
+1. Chatbot now appears on all pages in the website
+2. First submission requires email verification from FormSubmit.co
+   - Check admin@eufotech.ca for verification email
+   - Click verification link to activate
+   - After verification, all future submissions will arrive directly
+
+3. Email service: FormSubmit.co (free, no signup required)
+   - Alternative services available if needed (EmailJS, custom backend, etc.)
+
+4. Backup of changed files saved in: G:\eufo tech web site\recent\
+
+TECHNICAL DETAILS:
+------------------
+- Notification sound: Web Audio API (sine wave at 800Hz, 0.3s duration)
+- Session storage used to track if user already submitted
+- Chat state persists across page navigation
+- Chatbot code is self-contained (no external dependencies except FormSubmit)

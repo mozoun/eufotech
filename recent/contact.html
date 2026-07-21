@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - EUFO TECH</title>
+    <meta name="description" content="Contact EUFO TECH - IT, web and AI consulting. eufotech.ca">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="dotWaves"></div>
+
+    <header>
+        <a href="index.html" class="logo">
+            <div class="logo-icon"></div>
+            <div class="logo-text">EUFO TECH</div>
+        </a>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="services.html">Services</a>
+            <a href="about.html">About Us</a>
+            <a href="contact.html" class="active">Contact Us</a>
+        </nav>
+        <a href="https://calendly.com/eufotechltd/30min" target="_blank" class="btn-schedule">Schedule a Call</a>
+    </header>
+
+    <div class="content">
+        <section class="page-hero">
+            <div class="page-hero-eyebrow">Get In Touch</div>
+            <h1>Contact Us</h1>
+            <p>Have a project in mind, or just want to talk tech? Reach out by email or book a free call directly on our calendar.</p>
+        </section>
+
+        <!-- PLACEHOLDER: phone number / physical address / hours pending user input.
+             Currently only email + Calendly are confirmed contact channels. -->
+        <section class="content-section" style="text-align:center;">
+            <h2>Email</h2>
+            <p><a href="mailto:admin@eufotech.ca" style="color:var(--accent); text-decoration:underline;">admin@eufotech.ca</a></p>
+            <a href="https://calendly.com/eufotechltd/30min" target="_blank" class="btn-schedule" style="display:inline-block; margin-top:20px;">Schedule a Call</a>
+        </section>
+    </div>
+
+    <footer>
+        <div class="footer-col">
+            <a href="index.html" class="logo">
+                <div class="logo-icon"></div>
+                <div class="logo-text">EUFO TECH</div>
+            </a>
+            <p style="margin-top:20px; font-weight:600;">Contact Details:</p>
+            <a href="mailto:admin@eufotech.ca">admin@eufotech.ca</a>
+            <div class="social-icons">
+                <a href="#" class="social-icon">IG</a>
+                <a href="#" class="social-icon">IN</a>
+            </div>
+        </div>
+        <div class="footer-col">
+            <h4>Services</h4>
+            <a href="services.html">Web Development</a>
+            <a href="services.html">AI Chatbots</a>
+            <a href="services.html">Network Solutions</a>
+        </div>
+        <div class="footer-col">
+            <h4>Support</h4>
+            <a href="https://calendly.com/eufotechltd/30min" target="_blank">Book a Consultation</a>
+            <a href="#">FAQ</a>
+            <a href="contact.html">Contact us</a>
+        </div>
+        <div class="footer-col">
+            <h4>Company</h4>
+            <a href="about.html">About us</a>
+            <a href="#">Blog</a>
+        </div>
+    </footer>
+    <div class="copyright">
+        Copyright &copy; <span id="year"></span> Eufo Tech. All rights reserved.
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Custom Chatbot -->
+    <div id="customChatbot" class="chatbot-container">
+        <div class="chatbot-header">
+            <div class="chatbot-header-left">
+                <div class="chatbot-logo-icon"></div>
+                <span>Eufo Tech Assistant</span>
+            </div>
+            <button id="closeChatbot" class="chatbot-close">&times;</button>
+        </div>
+        <div class="chatbot-messages" id="chatMessages"></div>
+        <div class="chatbot-input-area">
+            <input type="text" id="chatInput" class="chatbot-input" placeholder="Type your message..." />
+            <button id="chatSend" class="chatbot-send">Send</button>
+        </div>
+    </div>
+
+    <button id="chatbotToggle" class="chatbot-toggle" style="display: none;" aria-label="Open chat">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+    </button>
+
+    <style>
+        .chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 320px;
+            height: 470px;
+            background: #1B1B21;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .chatbot-container.hidden {
+            display: none;
+        }
+
+        .chatbot-header {
+            background: #0F0F15;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chatbot-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chatbot-logo-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: #09090F;
+            border: 2px solid #D4AF37;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .chatbot-logo-icon::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #D4AF37;
+            border-radius: 50%;
+        }
+
+        .chatbot-header span {
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .chatbot-close {
+            background: none;
+            border: none;
+            color: #94979E;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s;
+        }
+
+        .chatbot-close:hover {
+            color: #D4AF37;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chatbot-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chatbot-messages::-webkit-scrollbar-track {
+            background: #0F0F15;
+        }
+
+        .chatbot-messages::-webkit-scrollbar-thumb {
+            background: #D4AF37;
+            border-radius: 3px;
+        }
+
+        .chat-message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            max-width: 80%;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-message.bot {
+            background: #0F0F15;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            color: #FFFFFF;
+            align-self: flex-start;
+        }
+
+        .chat-message.user {
+            background: #D4AF37;
+            color: #09090F;
+            align-self: flex-end;
+            font-weight: 500;
+        }
+
+        .chatbot-input-area {
+            display: flex;
+            padding: 16px;
+            gap: 10px;
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+            background: #0F0F15;
+        }
+
+        .chatbot-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 6px;
+            background: #1B1B21;
+            color: #FFFFFF;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+        }
+
+        .chatbot-input:focus {
+            border-color: #D4AF37;
+        }
+
+        .chatbot-input::placeholder {
+            color: #94979E;
+        }
+
+        .chatbot-send {
+            padding: 12px 20px;
+            background: #D4AF37;
+            color: #09090F;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .chatbot-send:hover {
+            background: #e8c34b;
+        }
+
+        .chatbot-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #D4AF37;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
+            z-index: 999;
+            transition: transform 0.3s;
+            color: #09090F;
+        }
+
+        .chatbot-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .chatbot-toggle svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        @media (max-width: 480px) {
+            .chatbot-container {
+                width: calc(100% - 20px);
+                height: calc(100% - 20px);
+                bottom: 10px;
+                right: 10px;
+            }
+        }
+    </style>
+
+    <script>
+        // Chatbot Logic
+        (function() {
+            const chatbot = document.getElementById('customChatbot');
+            const chatMessages = document.getElementById('chatMessages');
+            const chatInput = document.getElementById('chatInput');
+            const chatSend = document.getElementById('chatSend');
+            const closeChatbot = document.getElementById('closeChatbot');
+            const chatbotToggle = document.getElementById('chatbotToggle');
+
+            let conversationStep = 0;
+            let userData = {
+                needs: '',
+                service: '',
+                email: '',
+                bestTime: ''
+            };
+
+            // Play notification sound
+            function playNotificationSound() {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            }
+
+            // Start minimized - show button only
+            chatbot.classList.add('hidden');
+
+            // Show button with sound after short delay
+            setTimeout(() => {
+                chatbotToggle.style.display = 'flex';
+                playNotificationSound();
+            }, 1000);
+
+            function addBotMessage(message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'chat-message bot';
+                messageDiv.textContent = message;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            function addUserMessage(message) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'chat-message user';
+                messageDiv.textContent = message;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            function handleUserInput(input) {
+                if (!input.trim()) return;
+
+                addUserMessage(input);
+                chatInput.value = '';
+
+                // Process based on conversation step
+                setTimeout(() => {
+                    switch(conversationStep) {
+                        case 0:
+                            // Store what they need
+                            userData.needs = input;
+                            conversationStep++;
+                            addBotMessage("Great! We offer three main services: Web Development, AI Chatbots, and Network Solutions. Which service are you interested in, or feel free to describe what you're looking for?");
+                            break;
+
+                        case 1:
+                            // Store service interest
+                            userData.service = input;
+                            conversationStep++;
+                            addBotMessage("Perfect! What's your email address so we can get back to you?");
+                            break;
+
+                        case 2:
+                            // Store email
+                            userData.email = input;
+                            conversationStep++;
+                            addBotMessage("Thank you! What's the best time to contact you?");
+                            break;
+
+                        case 3:
+                            // Store best time
+                            userData.bestTime = input;
+                            conversationStep++;
+
+                            // Send email
+                            sendEmail();
+
+                            addBotMessage("Thank you for contacting Eufo Tech! We've received your information and will reach out to you soon. Feel free to explore our website or schedule a call directly using the button in the header.");
+
+                            // Mark as submitted in session storage
+                            sessionStorage.setItem('eufotech_chatbot_submitted', 'true');
+
+                            // Disable input
+                            chatInput.disabled = true;
+                            chatSend.disabled = true;
+                            chatInput.placeholder = "Chat completed";
+                            break;
+                    }
+                }, 600);
+            }
+
+            function sendEmail() {
+                // Prepare email data
+                const emailBody = `
+New Contact from Eufo Tech Website Chatbot
+
+What they need: ${userData.needs}
+
+Service interested in: ${userData.service}
+
+Email: ${userData.email}
+
+Best time to contact: ${userData.bestTime}
+
+---
+Sent from Eufo Tech Website Chatbot
+                `.trim();
+
+                // Using FormSubmit.co (free service - no signup required)
+                const form = document.createElement('form');
+                form.action = 'https://formsubmit.co/' + 'admin@eufotech.ca';
+                form.method = 'POST';
+                form.style.display = 'none';
+
+                const fields = {
+                    '_subject': 'New Contact from Eufo Tech Chatbot',
+                    '_template': 'box',
+                    'What_they_need': userData.needs,
+                    'Service_interested': userData.service,
+                    'Email': userData.email,
+                    'Best_time': userData.bestTime
+                };
+
+                for (let key in fields) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = fields[key];
+                    form.appendChild(input);
+                }
+
+                document.body.appendChild(form);
+                form.submit();
+
+                // Also log to console for testing
+                console.log('Chatbot submission:', userData);
+            }
+
+            // Event listeners
+            chatSend.addEventListener('click', () => {
+                handleUserInput(chatInput.value);
+            });
+
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleUserInput(chatInput.value);
+                }
+            });
+
+            closeChatbot.addEventListener('click', () => {
+                chatbot.classList.add('hidden');
+                chatbotToggle.style.display = 'flex';
+            });
+
+            chatbotToggle.addEventListener('click', () => {
+                chatbot.classList.remove('hidden');
+                chatbotToggle.style.display = 'none';
+
+                // Add welcome message if chat is empty
+                if (chatMessages.children.length === 0) {
+                    setTimeout(() => {
+                        addBotMessage("Welcome to Eufo Tech! How can we help you today?");
+                    }, 300);
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

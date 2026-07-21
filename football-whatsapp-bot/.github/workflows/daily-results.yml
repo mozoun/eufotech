@@ -1,0 +1,26 @@
+name: Daily Match Results Push
+
+on:
+  schedule:
+    # Run daily at 03:00 UTC (11:00 PM EST / 8:00 PM PST / 7:30 AM Tehran next day)
+    - cron: '0 3 * * *'
+  workflow_dispatch: # Enable manual triggers from GitHub Action UI
+
+jobs:
+  send-results:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Daily Results Webhook
+        run: |
+          if [ -z "${{ secrets.BOT_URL }}" ]; then
+            echo "Error: BOT_URL secret is not configured in GitHub Secrets."
+            exit 1
+          fi
+          if [ -z "${{ secrets.CRON_SECRET }}" ]; then
+            echo "Error: CRON_SECRET secret is not configured in GitHub Secrets."
+            exit 1
+          fi
+          curl -X POST "${{ secrets.BOT_URL }}/api/send-results" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json" \
+            --fail

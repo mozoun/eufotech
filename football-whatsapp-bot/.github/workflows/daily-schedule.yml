@@ -1,0 +1,26 @@
+name: Daily Match Schedule Push
+
+on:
+  schedule:
+    # Run daily at 12:00 UTC (8:00 AM EST / 5:00 AM PST / 4:30 PM Tehran)
+    - cron: '0 12 * * *'
+  workflow_dispatch: # Enable manual triggers from GitHub Action UI
+
+jobs:
+  send-schedule:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Daily Schedule Webhook
+        run: |
+          if [ -z "${{ secrets.BOT_URL }}" ]; then
+            echo "Error: BOT_URL secret is not configured in GitHub Secrets."
+            exit 1
+          fi
+          if [ -z "${{ secrets.CRON_SECRET }}" ]; then
+            echo "Error: CRON_SECRET secret is not configured in GitHub Secrets."
+            exit 1
+          fi
+          curl -X POST "${{ secrets.BOT_URL }}/api/send-schedule" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json" \
+            --fail
