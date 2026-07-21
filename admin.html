@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eufo Tech - CRM Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #09090F;
+            color: #FFFFFF;
+            min-height: 100vh;
+        }
+
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0F0F15 0%, #1B1B21 100%);
+        }
+
+        .login-box {
+            background: #1B1B21;
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+        }
+
+        .login-box h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #D4AF37;
+        }
+
+        .login-box p {
+            color: #94979E;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #FFFFFF;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            background: #0F0F15;
+            color: #FFFFFF;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #D4AF37;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #D4AF37 0%, #e8c34b 100%);
+            color: #09090F;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(212, 175, 55, 0.3);
+        }
+
+        .dashboard-container {
+            display: none;
+            min-height: 100vh;
+            background: #09090F;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(90deg, #0F0F15 0%, #1B1B21 100%);
+            border-bottom: 2px solid rgba(212, 175, 55, 0.2);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            sticky top: 0;
+            z-index: 100;
+        }
+
+        .dashboard-header h1 {
+            font-size: 24px;
+            color: #D4AF37;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1.5px solid #D4AF37;
+            color: #D4AF37;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #D4AF37;
+            color: #09090F;
+        }
+
+        .dashboard-content {
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #1B1B21;
+            border: 1.5px solid rgba(212, 175, 55, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .stat-card h3 {
+            color: #94979E;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #D4AF37;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1.5px solid rgba(212, 175, 55, 0.2);
+            border-radius: 8px;
+            background: #0F0F15;
+            color: #FFFFFF;
+            font-size: 14px;
+        }
+
+        .search-box input::placeholder {
+            color: #94979E;
+        }
+
+        .filter-select {
+            padding: 10px 15px;
+            border: 1.5px solid rgba(212, 175, 55, 0.2);
+            border-radius: 8px;
+            background: #0F0F15;
+            color: #FFFFFF;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .export-btn, .delete-all-btn {
+            padding: 10px 20px;
+            background: rgba(212, 175, 55, 0.15);
+            border: 1.5px solid rgba(212, 175, 55, 0.4);
+            color: #D4AF37;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .export-btn:hover {
+            background: #D4AF37;
+            color: #09090F;
+        }
+
+        .delete-all-btn {
+            border-color: rgba(231, 76, 60, 0.4);
+            color: #e74c3c;
+        }
+
+        .delete-all-btn:hover {
+            background: #e74c3c;
+            color: #FFFFFF;
+        }
+
+        .table-container {
+            background: #1B1B21;
+            border: 1.5px solid rgba(212, 175, 55, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #0F0F15;
+            border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            color: #D4AF37;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+            transition: all 0.2s;
+        }
+
+        tbody tr:hover {
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        td {
+            padding: 15px;
+            color: #FFFFFF;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-new {
+            background: rgba(52, 152, 219, 0.2);
+            color: #3498db;
+        }
+
+        .status-contacted {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+
+        .status-converted {
+            background: rgba(212, 175, 55, 0.2);
+            color: #D4AF37;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            background: transparent;
+            color: #D4AF37;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: rgba(212, 175, 55, 0.2);
+        }
+
+        .action-btn.delete {
+            border-color: rgba(231, 76, 60, 0.3);
+            color: #e74c3c;
+        }
+
+        .action-btn.delete:hover {
+            background: rgba(231, 76, 60, 0.2);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #94979E;
+        }
+
+        .empty-state h2 {
+            margin-bottom: 10px;
+            color: #FFFFFF;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1B1B21;
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #D4AF37;
+        }
+
+        .modal-field {
+            margin-bottom: 15px;
+        }
+
+        .modal-field label {
+            display: block;
+            color: #94979E;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            letter-spacing: 0.5px;
+        }
+
+        .modal-field span {
+            display: block;
+            color: #FFFFFF;
+            font-size: 14px;
+            word-break: break-word;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-close {
+            flex: 1;
+            padding: 10px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1.5px solid #D4AF37;
+            color: #D4AF37;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-content {
+                padding: 15px;
+            }
+
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .search-box {
+                min-width: unset;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-box">
+            <h1>Eufo Tech</h1>
+            <p>CRM Dashboard Login</p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="password">Admin Password</label>
+                    <input type="password" id="password" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="login-btn">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard-container" id="dashboardContainer">
+        <div class="dashboard-header">
+            <h1>CRM Dashboard</h1>
+            <button class="logout-btn" id="logoutBtn">Logout</button>
+        </div>
+
+        <div class="dashboard-content">
+            <!-- Stats -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <h3>Total Leads</h3>
+                    <div class="number" id="totalLeads">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>New Leads</h3>
+                    <div class="number" id="newLeads">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Contacted</h3>
+                    <div class="number" id="contactedLeads">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Converted</h3>
+                    <div class="number" id="convertedLeads">0</div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search by name, email, or service...">
+                </div>
+                <select class="filter-select" id="statusFilter">
+                    <option value="">All Statuses</option>
+                    <option value="new">New</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="converted">Converted</option>
+                </select>
+                <button class="export-btn" id="exportBtn">Export CSV</button>
+                <button class="delete-all-btn" id="deleteAllBtn">Clear All</button>
+            </div>
+
+            <!-- Table -->
+            <div class="table-container">
+                <table id="leadsTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Service</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leadsBody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: #94979E; padding: 40px;">
+                                No leads yet. Chatbot submissions will appear here.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lead Details Modal -->
+    <div class="modal" id="leadsModal">
+        <div class="modal-content">
+            <div class="modal-header">Lead Details</div>
+            <div id="modalBody"></div>
+            <div class="modal-actions">
+                <button class="modal-close" id="closeModalBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin-dashboard.js"></script>
+</body>
+</html>

@@ -273,6 +273,10 @@
         sessionStorage.setItem('eufotech_chatbot_submitted', 'true');
         sendEmail();
         sendToHubSpot();
+        // Store lead in local CRM dashboard
+        if (window.addLeadToManualCRM) {
+            window.addLeadToManualCRM(userData);
+        }
         addBotMessage(`✅ Perfect${greet(userData.name)}! We'll contact you on ${userData.day} between ${userData.time}. Thank you for reaching out to Eufo Tech!`);
         setTimeout(() => addBotMessage('Is there anything else I can help you with while you\'re here?', faqOptions()), 1800);
     }
