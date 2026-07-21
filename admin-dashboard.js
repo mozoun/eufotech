@@ -265,21 +265,5 @@ function exportToCSV() {
     document.body.removeChild(a);
 }
 
-// Public function to add leads (called from chatbot.js)
-window.addLeadToManualCRM = function(leadData) {
-    const lead = {
-        id: 'lead_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-        date: new Date().toISOString(),
-        name: leadData.name || '',
-        email: leadData.email,
-        service: leadData.service || '',
-        needs: leadData.needs || '',
-        job: leadData.job || '',
-        day: leadData.day || '',
-        time: leadData.time || '',
-        status: 'new'
-    };
-
-    allLeads.unshift(lead);
-    saveLeads();
-};
+// Note: window.addLeadToManualCRM is now defined in chatbot.js
+// so it's available before admin-dashboard.js loads

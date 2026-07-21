@@ -1,4 +1,32 @@
 // Eufo Tech Interactive Chatbot (shared across all pages)
+
+// CRM Storage Function (available globally for dashboard)
+window.addLeadToManualCRM = function(leadData) {
+    const LEADS_STORAGE_KEY = 'eufotech_crm_leads';
+    const lead = {
+        id: 'lead_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+        date: new Date().toISOString(),
+        name: leadData.name || '',
+        email: leadData.email,
+        service: leadData.service || '',
+        needs: leadData.needs || '',
+        job: leadData.job || '',
+        day: leadData.day || '',
+        time: leadData.time || '',
+        status: 'new'
+    };
+
+    try {
+        const stored = localStorage.getItem(LEADS_STORAGE_KEY);
+        const allLeads = stored ? JSON.parse(stored) : [];
+        allLeads.unshift(lead);
+        localStorage.setItem(LEADS_STORAGE_KEY, JSON.stringify(allLeads));
+        console.log('Lead saved to CRM:', lead);
+    } catch (e) {
+        console.error('Error saving lead to CRM:', e);
+    }
+};
+
 (function() {
     const chatbot = document.getElementById('customChatbot');
     const chatMessages = document.getElementById('chatMessages');
